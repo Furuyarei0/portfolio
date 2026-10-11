@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M. Haikal As Sayuti — UI/UX & Product Designer</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230e121b'/%3E%3Cpath d='M17 49V15h8v14h14V15h8v34h-8V36H25v13z' fill='%235ad1f0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   TOKEN — ubah warna & ukuran utama di sini
+   ========================================================= */
+:root{
+  --bg:        #0e121b;   /* latar halaman */
+  --surface:   rgba(255,255,255,.055);  /* kaca (glass) */
+  --line:      rgba(255,255,255,.12);
+  --text:      #eceff6;
+  --muted:     #9aa3b5;
+  --accent:    #5ad1f0;   /* biru muda, diambil dari GIF */
+  --sand:      #e8d9c4;
+
+  --card-size:  240px;    /* ukuran kartu produk (1:1) */
+  --card-gap:   18px;
+  --loop-time:  28s;      /* makin besar = makin lambat */
+
+  --font-head: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font:400 1rem/1.7 var(--font-body);
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* =========================================================
+   HERO — memakai hero_section.gif
+   ========================================================= */
+.page{width:80%;margin:0 auto;padding:clamp(1rem,2.5vw,2rem) 0}   /* seluruh layout = 80% lebar halaman */
+.hero{
+  position:relative;
+  min-height:100svh;              /* memenuhi satu layar penuh */
+  width:100%;
+  display:flex;
+  align-items:flex-end;
+  padding:clamp(1.5rem,5vw,4rem);
+  background:
+    linear-gradient(to top, var(--bg) 0%, rgba(14,18,27,.55) 38%, rgba(14,18,27,.15) 100%),
+    url("hero_section.gif") center/cover no-repeat;
+}
+.hero{justify-content:flex-end}            /* dorong ke kanan; ganti flex-start untuk kembali ke kiri */
+.hero-inner{max-width:62rem;text-align:right}
+.hero h1{
+  font:700 clamp(2.6rem,9vw,7rem)/.95 var(--font-head);
+  letter-spacing:-.035em;
+}
+.hero .role{
+  margin-top:1.1rem;
+  font:500 clamp(1.05rem,2.2vw,1.5rem)/1.3 var(--font-head);
+  color:var(--sand);
+}
+.hero .quote{
+  margin-top:.4rem;
+  color:var(--muted);
+  font-style:italic;
+}
+.sub-h{font:500 1.2rem/1.3 var(--font-head);margin:2rem 0 .75rem;color:var(--sand)}
+
+/* =========================================================
+   FOOTER — motto hidup
+   ========================================================= */
+.footer{
+  padding:clamp(1.5rem,3vw,2.25rem) 1.5rem;
+  text-align:center;
+  border:1px solid var(--line);
+  border-radius:28px;
+  background:
+    radial-gradient(60% 120% at 50% 100%, rgba(90,209,240,.16), transparent 70%),
+    var(--surface);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.footer p{font:500 clamp(1.1rem,2.4vw,1.6rem)/1.3 var(--font-head);letter-spacing:-.01em}
+.hero .cta{
+  display:inline-block;
+  margin-top:2rem;
+  padding:.8rem 1.5rem;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:var(--surface);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  text-decoration:none;
+  font-weight:500;
+  transition:background .2s, color .2s, border-color .2s;
+}
+.hero .cta:hover{background:var(--accent);color:#06222b;border-color:var(--accent)}
+
+/* =========================================================
+   LAYOUT UTAMA — kiri: menu, kanan: isi
+   Teknik: radio button + label + :checked (tanpa JavaScript)
+   ========================================================= */
+.app{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(180px,1fr) 4fr;   /* menu 20% : isi 80% */
+  gap:clamp(1.25rem,3vw,2.5rem);
+  padding:clamp(1.5rem,4vw,2.5rem) 0;
+  scroll-margin-top:0;
+}
+.app > input{position:fixed;opacity:0;pointer-events:none}
+
+/* ---- Menu kiri ---- */
+.menu{
+  position:sticky;
+  top:2rem;
+  align-self:start;
+  display:flex;
+  flex-direction:column;
+  gap:.25rem;
+}
+.menu .who{
+  font:700 1.25rem/1.2 var(--font-head);
+  margin-bottom:.15rem;
+}
+.menu .sub{color:var(--muted);font-size:.9rem;margin-bottom:1.75rem}
+.menu label{
+  position:relative;
+  cursor:pointer;
+  padding:.6rem 0 .6rem 1.1rem;
+  color:var(--muted);
+  font:500 1.05rem/1.3 var(--font-head);
+  border-left:2px solid var(--line);
+  transition:color .2s, border-color .2s, padding .2s;
+}
+.menu label:hover{color:var(--text)}
+
+/* menu aktif */
+#t-profil:checked    ~ .menu label[for="t-profil"],
+#t-edu:checked       ~ .menu label[for="t-edu"],
+#t-org:checked       ~ .menu label[for="t-org"],
+#t-kerja:checked     ~ .menu label[for="t-kerja"],
+#t-produk:checked    ~ .menu label[for="t-produk"]{
+  color:var(--text);
+  border-left-color:var(--accent);
+  padding-left:1.5rem;
+}
+/* fokus keyboard pada radio -> tampil di label */
+#t-profil:focus-visible    ~ .menu label[for="t-profil"],
+#t-edu:focus-visible       ~ .menu label[for="t-edu"],
+#t-org:focus-visible       ~ .menu label[for="t-org"],
+#t-kerja:focus-visible     ~ .menu label[for="t-kerja"],
+#t-produk:focus-visible    ~ .menu label[for="t-produk"]{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---- Panel kanan ---- */
+.stage{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  min-width:0;
+  min-height:28rem;
+  padding:clamp(1.5rem,4vw,3rem);
+  border:1px solid var(--line);
+  border-radius:28px;
+  background:
+    radial-gradient(60% 50% at 100% 0%, rgba(90,209,240,.12), transparent 70%),
+    var(--surface);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.panel{grid-area:1/1/2/2;min-width:0;visibility:hidden}
+@keyframes swap{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+#t-profil:checked   ~ .stage .p-profil,
+#t-edu:checked      ~ .stage .p-edu,
+#t-org:checked      ~ .stage .p-org,
+#t-kerja:checked    ~ .stage .p-kerja,
+#t-produk:checked   ~ .stage .p-produk{
+  visibility:visible;
+  animation:swap .35s ease both;
+}
+
+.panel h2{
+  font:700 clamp(1.8rem,4vw,2.8rem)/1.05 var(--font-head);
+  letter-spacing:-.025em;
+  margin-bottom:1.5rem;
+}
+.panel p{max-width:62ch;color:#cfd5e2}
+.panel p + p{margin-top:1rem}
+
+/* daftar entri (pendidikan, organisasi, pekerjaan) */
+.entry{
+  padding:1.25rem 0;
+  border-top:1px solid var(--line);
+}
+.entry:last-child{border-bottom:1px solid var(--line)}
+.entry h3{font:500 1.2rem/1.3 var(--font-head)}
+.entry .when{color:var(--accent);font-size:.9rem;margin:.15rem 0 .5rem}
+.entry p{font-size:.97rem}
+
+/* =========================================================
+   PRODUK — kartu 1:1, bergulir ke samping, loop
+   ========================================================= */
+.carousel{
+  margin-top:.5rem;
+  overflow:hidden;
+  /* pudarkan tepi kiri & kanan */
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent);
+          mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent);
+}
+.track{
+  display:flex;
+  gap:var(--card-gap);
+  width:max-content;
+  animation:loop var(--loop-time) linear infinite;
+}
+@media (hover:hover) and (pointer:fine){
+  .carousel:hover .track,
+  .carousel:has(.card:focus-visible) .track{animation-play-state:paused}
+}
+
+/* geser tepat setengah lebar (set kartu ke-1) -> mulus tanpa putus */
+@keyframes loop{
+  to{transform:translateX(calc(-50% - var(--card-gap) / 2))}
+}
+
+.card{
+  position:relative;
+  flex:0 0 var(--card-size);
+  width:var(--card-size);
+  aspect-ratio:1 / 1;           /* rasio 1:1 */
+  overflow:hidden;
+  border-radius:20px;
+  border:1px solid var(--line);
+  background:#1a2030;
+  display:block;
+  text-decoration:none;
+}
+.card img{
+  width:100%;height:100%;
+  object-fit:cover;
+  display:block;
+  transition:transform .5s ease;
+}
+.card:hover img{transform:scale(1.06)}
+.card .cap{
+  position:absolute;left:0;right:0;bottom:0;
+  padding:2.5rem 1rem .9rem;
+  background:linear-gradient(to top,rgba(8,10,16,.88),transparent);
+  font:500 1rem/1.25 var(--font-head);
+}
+.card .cap small{
+  display:block;
+  margin-top:.15rem;
+  font:400 .8rem/1.3 var(--font-body);
+  color:var(--accent);
+}
+.hint{margin-top:1.25rem;color:var(--muted);font-size:.88rem}
+
+/* =========================================================
+   RESPONSIF
+   ========================================================= */
+@media (max-width:1024px){
+  .hero{background-position:center,13% center}
+}
+
+@media (max-width:820px){
+  .page{width:92%}
+  .app{grid-template-columns:1fr}
+  .menu{
+    position:static;
+    flex-direction:row;
+    flex-wrap:wrap;
+    gap:.5rem;
+  }
+  .menu .who,.menu .sub{flex:0 0 100%}
+  .menu .sub{margin-bottom:.75rem}
+  .menu label{
+    padding:.5rem 1rem;
+    border:1px solid var(--line);
+    border-radius:999px;
+    font-size:.95rem;
+  }
+  #t-profil:checked    ~ .menu label[for="t-profil"],
+  #t-edu:checked       ~ .menu label[for="t-edu"],
+  #t-org:checked       ~ .menu label[for="t-org"],
+  #t-kerja:checked     ~ .menu label[for="t-kerja"],
+  #t-produk:checked    ~ .menu label[for="t-produk"]{
+    padding:.5rem 1rem;
+    background:var(--accent);
+    color:#06222b;
+    border-color:var(--accent);
+  }
+  .stage{
+    display:block;
+    min-height:0;
+    padding:clamp(1.1rem,5vw,1.5rem);
+    overflow-anchor:none;
+  }
+  .panel{display:none;grid-area:auto;visibility:visible;animation:none}
+  #t-profil:checked   ~ .stage .p-profil,
+  #t-edu:checked      ~ .stage .p-edu,
+  #t-org:checked      ~ .stage .p-org,
+  #t-kerja:checked    ~ .stage .p-kerja,
+  #t-produk:checked   ~ .stage .p-produk{display:block}
+  .carousel{
+    overflow:hidden;
+    overflow-y:hidden;
+    -webkit-mask-image:none;
+            mask-image:none;
+  }
+  .track{width:max-content;animation:loop var(--loop-time) linear infinite}
+  .track .dup{display:block}
+  :root{--card-size:clamp(170px,62vw,200px)}
+}
+
+/* hormati pengguna yang mematikan animasi */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .panel{animation:none}
+  .track{animation:none}
+  .carousel{overflow-x:auto;-webkit-mask-image:none;mask-image:none}
+  .track .dup{display:none}
+}
+</style>
+</head>
+
+<body>
+
+<!-- BANNER (hero): layar penuh -->
+<header class="hero">
+  <div class="hero-inner">
+    <h1>M Haikal<br>As Sayuti</h1>
+    <p class="role">UI/UX &amp; Product Designer</p>
+    <p class="quote">Simplicity is the ultimate sophistication</p>
+    <a class="cta" href="#portofolio">Lihat portofolio</a>
+  </div>
+</header>
+
+<div class="page">
+
+<!-- ===================== ISI ===================== -->
+<main class="app" id="portofolio">
+
+  <!-- radio: satu per menu. "checked" = menu yang terbuka pertama kali -->
+  <input type="radio" name="tab" id="t-profil" checked>
+  <input type="radio" name="tab" id="t-edu">
+  <input type="radio" name="tab" id="t-org">
+  <input type="radio" name="tab" id="t-kerja">
+  <input type="radio" name="tab" id="t-produk">
+
+  <!-- ---------- KIRI: menu ---------- -->
+  <nav class="menu" aria-label="Bagian portofolio">
+    <p class="who">k4ll</p>
+    <p class="sub">Pilih bagian untuk membaca isinya.</p>
+    <label for="t-profil">Profil</label>
+    <label for="t-edu">Riwayat Pendidikan</label>
+    <label for="t-org">Riwayat Organisasi</label>
+    <label for="t-kerja">Riwayat Pekerjaan</label>
+    <label for="t-produk">Karya/Produk</label>
+  </nav>
+
+  <!-- ---------- KANAN: isi ---------- -->
+  <div class="stage">
+
+    <!-- PROFIL -->
+    <section class="panel p-profil">
+      <h2>Profil</h2>
+      <p>Saya adalah seorang UI/UX &amp; Product Designer yang berfokus pada penciptaan antarmuka digital yang intuitif, fungsional, dan estetis. Berangkat dari filosofi desain bahwa kesederhanaan adalah bentuk kecanggihan tertinggi, saya mendalami perancangan produk yang berpusat pada pengguna.</p>
+      <p>Pendekatan desain saya kerap mengeksplorasi gaya modern seperti elemen <em>dark-theme</em> dan <em>glassmorphism</em>, menggabungkan aspek visual yang kuat dengan pengalaman pengguna yang mulus. Saat ini, fokus utama saya adalah membangun solusi digital melalui kolaborasi dan proyek lepas (freelance), dengan aspirasi untuk terus berinovasi dalam desain produk di tingkat global.</p>
+      <h3 class="sub-h">Proyeksi 5 tahun ke depan (2031)</h3>
+      <p>Dalam lima tahun mendatang, saya memproyeksikan diri saya berada di lingkungan akademik dan profesional berskala internasional — menempuh studi magister (S2) di luar negeri sembari menjalankan peran sebagai desainer <em>remote</em> atau <em>freelancer</em> untuk klien global.</p>
+      <p>Visi jangka panjang saya adalah mengarahkan keahlian desain dan teknologi yang saya miliki untuk merancang sistem, produk digital, atau aplikasi (sebagai bagian dari tesis/proyek akhir) yang tidak hanya memecahkan masalah kompleks, namun juga memiliki nilai guna yang praktis dan nyata bagi masyarakat luas.</p>
+    </section>
+
+    <!-- PENDIDIKAN -->
+    <section class="panel p-edu">
+      <h2>Riwayat Pendidikan</h2>
+      <div class="entry">
+        <h3>S2 — [Program Studi Terkait Desain/Teknologi]</h3>
+        <p class="when">Proyeksi 2031</p>
+        <p>Fokus pada pengembangan keterampilan tingkat lanjut dalam interaksi manusia-komputer dan perancangan produk strategis.</p>
+      </div>
+      <div class="entry">
+        <h3>S1 Sistem Informasi — UIN Sultan Thaha Saifuddin Jambi</h3>
+        <p class="when">2024 – proyeksi 2028</p>
+        <p>Fokus pada integrasi sistem teknologi, pengembangan perangkat lunak, dan manajemen data.</p>
+      </div>
+    </section>
+
+    <!-- ORGANISASI -->
+    <section class="panel p-org">
+      <h2>Riwayat Organisasi</h2>
+      <div class="entry">
+        <h3>Anggota Divisi Infokom — UKK Kopma UIN Jambi</h3>
+        <p class="when">Saat ini</p>
+        <p>Bertanggung jawab dalam pengelolaan informasi, komunikasi visual, dan mendukung inisiatif digitalisasi koperasi mahasiswa.</p>
+      </div>
+      <div class="entry">
+        <h3>Anggota Komunitas — Google Cloud Arcade</h3>
+        <p>Aktif berpartisipasi dalam ekosistem dan komunitas pembelajaran komputasi awan serta teknologi Google.</p>
+      </div>
+    </section>
+
+    <!-- PEKERJAAN -->
+    <section class="panel p-kerja">
+      <h2>Riwayat Pekerjaan</h2>
+      <p>Sebagai desainer independen (freelance &amp; proyek), saya mengelola berbagai siklus proyek dari konseptualisasi hingga hasil akhir.</p>
+      <div class="entry" style="margin-top:1.5rem">
+        <h3>UI/UX Design</h3>
+        <p>Merancang purwarupa (prototype) dan struktur antarmuka untuk aplikasi web.</p>
+      </div>
+      <div class="entry">
+        <h3>Merchandise &amp; Graphic Design</h3>
+        <p>Menciptakan aset visual dan elemen identitas produk untuk berbagai kebutuhan promosi.</p>
+      </div>
+    </section>
+
+    <!-- PRODUK -->
+    <section class="panel p-produk">
+      <h2>Karya/Produk</h2>
+
+      <!--
+        ==========================================================
+        CARA MENGUBAH KARTU
+        ----------------------------------------------------------
+        Satu kartu = satu baris <a class="card"> ... </a>
+          • href="..."     → link website (tujuan saat kartu diklik)
+          • <img src="..."> → foto kartu (taruh file di folder images/)
+          • <span class="cap"> → judul, <small> → keterangan kecil
+        Kartu tanpa link (mis. merchandise): hapus href & target,
+        atau ganti href menjadi gambar besar, mis. href="images/tshirt.jpg"
+
+        PENTING: loop butuh dua set yang SAMA PERSIS.
+        Edit set 1, lalu salin hasilnya ke set 2 (class="dup").
+        Menambah kartu? Tambahkan di KEDUA set.
+        ==========================================================
+      -->
+      <div class="carousel">
+        <div class="track">
+
+          <!-- ===== SET 1 ===== -->
+          <a class="card" href="https://temukmuin.vercel.app/" target="_blank" rel="noopener">
+            <img src="/foto product/temUKM.png" alt="Desain antarmuka temUKM">
+            <span class="cap">temUKM<small>UI/UX · platform web</small></span>
+          </a>
+          <a class="card" href="https://tumpukanmaterii.netlify.app/" target="_blank" rel="noopener">
+            <img src="foto product/tumpukan.png" alt="Desain antarmuka Tumpukan">
+            <span class="cap">Tumpukan<small>UI/UX · proyek web</small></span>
+          </a>
+          <a class="card" href="foto product/design_shirt.png" target="_blank">
+            <img src="/foto product/design_shirt.png" alt="Desain kaos volunteer">
+            <span class="cap">Desain T-Shirt<small>Merchandise volunteer</small></span>
+          </a>
+          <a class="card" href="foto product/design_kipas.png" target="_blank">
+            <img src="/foto product/design_kipas.png" alt="Desain kipas promosi">
+            <span class="cap">Desain Kipas<small>Cetak promosi</small></span>
+          </a>
+          <a class="card" href="foto product/typograph.png" target="_blank">
+            <img src="/foto product/typograph.png" alt="Desain tipografi">
+            <span class="cap">Desain Tipografi<small>Desain grafis</small></span>
+          </a>
+          <a class="card" href="images/merch-kipas.svg" target="_blank">
+            <img src="/foto product/logo.png" alt="Desain logo">
+            <span class="cap">Desain Logo<small>Desain grafis</small></span>
+          </a>
+          <a class="card" href="images/merch-kipas.svg" target="_blank">
+            <img src="/foto product/logo_2.png" alt="Desain logo">
+            <span class="cap">Desain Logo<small>Desain grafis</small></span>
+          </a>
+
+          <!-- ===== SET 2 (salinan set 1, jangan dihapus) ===== -->
+          <a class="card dup" href="https://temukmuin.vercel.app/" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+            <img src="/foto product/temUKM.png" alt="">
+            <span class="cap">temUKM<small>UI/UX · platform web</small></span>
+          </a>
+          <a class="card dup" href="https://tumpukanmaterii.netlify.app/" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
+            <img src="/foto product/tumpukan.png" alt="">
+            <span class="cap">Tumpukan<small>UI/UX · proyek web</small></span>
+          </a>
+          <a class="card dup" href="/foto product/design_shirt.png" target="_blank" aria-hidden="true" tabindex="-1">
+            <img src="/foto product/design_shirt.png" alt="">
+            <span class="cap">Desain T-Shirt<small>Merchandise volunteer</small></span>
+          </a>
+          <a class="card dup" href="/foto product/design_kipas.png" target="_blank" aria-hidden="true" tabindex="-1">
+            <img src="/foto product/design_kipas.png" alt="">
+            <span class="cap">Desain Kipas<small>Cetak promosi</small></span>
+          </a>
+          <a class="card dup" href="/foto product/typograph.png" target="_blank" aria-hidden="true" tabindex="-1">
+            <img src="/foto product/typograph.png" alt="">
+            <span class="cap">Desain Tipografi<small>Desain grafis</small></span>
+          </a>
+          <a class="card dup" href="/foto product/logo.png" target="_blank" aria-hidden="true" tabindex="-1">
+            <img src="/foto product/logo.png" alt="">
+            <span class="cap">Desain Logo<small>Desain grafis</small></span>
+          </a>
+          <a class="card dup" href="/foto product/logo_2.png" target="_blank" aria-hidden="true" tabindex="-1">
+            <img src="/foto product/logo_2.png" alt="">
+            <span class="cap">Desain Logo<small>Desain grafis</small></span>
+          </a>  
+
+
+        </div>
+      </div>
+
+      <p class="hint">Arahkan kursor ke kartu untuk menjeda. Klik untuk membuka.</p>
+    </section>
+
+  </div>
+</main>
+
+<!-- ===================== FOOTER: MOTTO ===================== -->
+<footer class="footer">
+  <!-- Ganti dengan motto hidupmu -->
+  <p>Simplicity is the ultimate sophistication</p>
+</footer>
+</div>
+
+</body>
+</html>
