@@ -355,14 +355,14 @@ a{color:inherit}
 
 <!-- BANNER (hero): layar penuh -->
 <header class="hero">
-  <video class="hero-video" muted loop playsinline preload="metadata" aria-hidden="true">
+  <video class="hero-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
     <source src="hero_section.webm" type="video/webm">
   </video>
   <div class="hero-inner">
     <h1>M Haikal<br>As Sayuti</h1>
     <p class="role">UI/UX &amp; Product Designer</p>
     <p class="quote">Simplicity is the ultimate sophistication</p>
-    <button class="cta" type="button">Lihat portofolio</button>
+    <a class="cta" href="#portofolio">Lihat portofolio</a>
   </div>
 </header>
 
@@ -544,31 +544,6 @@ a{color:inherit}
   <p>Simplicity is the ultimate sophistication</p>
 </footer>
 </div>
-
-<script>
-const heroVideo = document.querySelector(".hero-video");
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-function updateHeroPlayback() {
-  if (reducedMotion.matches) {
-    heroVideo.pause();
-    return;
-  }
-
-  heroVideo.play().catch((error) => {
-    console.error("Hero video playback failed:", error);
-  });
-}
-
-updateHeroPlayback();
-reducedMotion.addEventListener("change", updateHeroPlayback);
-
-document.querySelector(".hero .cta").addEventListener("click", () => {
-  document.getElementById("portofolio").scrollIntoView({
-    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"
-  });
-});
-</script>
 
 </body>
 </html>
