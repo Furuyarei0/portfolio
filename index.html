@@ -4,234 +4,281 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>M. Haikal As Sayuti — UI/UX & Product Designer</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230e121b'/%3E%3Cpath d='M17 49V15h8v14h14V15h8v34h-8V36H25v13z' fill='%235ad1f0'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,800;1,9..144,600&family=Instrument+Sans:wght@400;500;600&family=Caveat:wght@600&display=swap" rel="stylesheet">
 
 <style>
 /* =========================================================
-   TOKEN — ubah warna & ukuran utama di sini
+   TOKEN — warna earth tone, ukuran, jarak
    ========================================================= */
 :root{
-  --bg:        #0e121b;   /* latar halaman */
-  --surface:   rgba(255,255,255,.055);  /* kaca (glass) */
-  --line:      rgba(255,255,255,.12);
-  --text:      #eceff6;
-  --muted:     #9aa3b5;
-  --accent:    #5ad1f0;   /* biru muda, diambil dari GIF */
-  --sand:      #e8d9c4;
+  --kraft:      #e4d2ae;   /* latar halaman (kertas kraft) */
+  --paper:      #f7eedc;   /* area isi */
+  --ink:        #2c1e15;   /* garis outline & teks */
+  --terracotta: #c4572f;
+  --mustard:    #e3ae44;   /* menu kiri */
+  --olive:      #6d7a3c;   /* footer */
+  --sage:       #b7bf94;
 
-  --card-size:  240px;    /* ukuran kartu produk (1:1) */
-  --card-gap:   18px;
-  --loop-time:  28s;      /* makin besar = makin lambat */
+  --gap:        12px;      /* JARAK ANTAR BAGIAN (8–12px) */
+  --stroke:     3px;       /* tebal garis outline */
 
-  --font-head: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  /* sudut tak beraturan = kesan digambar tangan */
+  --r1: 26px 34px 20px 36px / 34px 20px 36px 26px;
+  --r2: 34px 22px 32px 24px / 24px 34px 22px 32px;
+  --r3: 22px 30px 26px 18px / 28px 20px 30px 24px;
+
+  --card-size:  230px;     /* kartu karya (1:1) */
+  --card-gap:   16px;
+  --loop-time:  44s;       /* makin besar = makin lambat */
+
+  --font-head: "Fraunces", Georgia, serif;
   --font-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --font-hand: "Caveat", "Segoe Print", cursive;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{
-  background:var(--bg);
-  color:var(--text);
+  color:var(--ink);
   font:400 1rem/1.7 var(--font-body);
   -webkit-font-smoothing:antialiased;
+  /* tekstur butiran kertas */
+  background:
+    radial-gradient(rgba(44,30,21,.09) 1px, transparent 1.3px) 0 0/7px 7px,
+    var(--kraft);
 }
 a{color:inherit}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+:focus-visible{outline:3px dashed var(--terracotta);outline-offset:4px}
 
 /* =========================================================
-   HERO — video WebM teroptimasi
+   KERANGKA — 80% lebar halaman, jarak antar bagian = --gap
+   banner → (menu 20% | isi 80%) → footer
    ========================================================= */
-.page{width:80%;margin:0 auto;padding:clamp(1rem,2.5vw,2rem) 0}   /* seluruh layout = 80% lebar halaman */
-.hero{
-  position:relative;
-  isolation:isolate;
-  overflow:hidden;
-  min-height:100svh;              /* memenuhi satu layar penuh */
-  width:100%;
+.page{
+  width:80%;
+  margin:0 auto;
+  padding:var(--gap) 0;
   display:flex;
-  align-items:flex-end;
-  padding:clamp(1.5rem,5vw,4rem);
-  background:var(--bg);
+  flex-direction:column;
+  gap:var(--gap);
 }
-.hero::before{
+
+/* semua blok: garis tebal + garis kedua tipis (efek goresan kuas) */
+.hero,.menu,.stage,.footer{
+  position:relative;
+  border:var(--stroke) solid var(--ink);
+}
+.hero::after,.menu::after,.stage::after,.footer::after{
   content:"";
   position:absolute;
-  inset:0;
-  z-index:1;
-  background:linear-gradient(to top, var(--bg) 0%, rgba(14,18,27,.55) 38%, rgba(14,18,27,.15) 100%);
+  inset:-5px;
+  border:2px solid var(--ink);
+  opacity:.5;
+  pointer-events:none;
+  transform:rotate(-.3deg);
+  border-radius:var(--r2);
 }
-.hero{justify-content:flex-end}            /* dorong ke kanan; ganti flex-start untuk kembali ke kiri */
-.hero-video{
-  position:absolute;
-  inset:0;
-  z-index:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
+
+/* =========================================================
+   1. BANNER — foto terbaik (hero_section.gif)
+   ========================================================= */
+.hero{
+  min-height:calc(100svh - var(--gap) * 2);   /* mengisi layar pertama */
+  display:flex;
+  justify-content:flex-end;
+  align-items:flex-end;
+  padding:clamp(1.5rem,4vw,3.5rem);
+  border-radius:var(--r1);
+  color:var(--paper);
+  background:
+    linear-gradient(to top, rgba(44,30,21,.86) 0%, rgba(44,30,21,.35) 45%, rgba(44,30,21,.05) 100%),
+    url("hero_section.gif") center/cover no-repeat,
+    var(--clay, #a8512f);
+  background-position:center,20% center,center;
 }
-.hero-inner{position:relative;z-index:2;max-width:62rem;text-align:right}
+.hero-inner{max-width:46rem;text-align:right}
 .hero h1{
-  font:700 clamp(2.6rem,9vw,7rem)/.95 var(--font-head);
-  letter-spacing:-.035em;
+  font:800 clamp(2.4rem,7vw,5.8rem)/.95 var(--font-head);
+  letter-spacing:-.03em;
 }
 .hero .role{
-  margin-top:1.1rem;
-  font:500 clamp(1.05rem,2.2vw,1.5rem)/1.3 var(--font-head);
-  color:var(--sand);
+  margin-top:1rem;
+  font:600 clamp(1.05rem,2vw,1.45rem)/1.3 var(--font-head);
+  font-style:italic;
+  color:var(--mustard);
 }
 .hero .quote{
-  margin-top:.4rem;
-  color:var(--muted);
-  font-style:italic;
+  margin-top:.2rem;
+  font:600 1.5rem/1.2 var(--font-hand);
+  color:var(--sage);
 }
-.sub-h{font:500 1.2rem/1.3 var(--font-head);margin:2rem 0 .75rem;color:var(--sand)}
-
-/* =========================================================
-   FOOTER — motto hidup
-   ========================================================= */
-.footer{
-  padding:clamp(1.5rem,3vw,2.25rem) 1.5rem;
-  text-align:center;
-  border:1px solid var(--line);
-  border-radius:28px;
-  background:
-    radial-gradient(60% 120% at 50% 100%, rgba(90,209,240,.16), transparent 70%),
-    var(--surface);
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-}
-.footer p{font:500 clamp(1.1rem,2.4vw,1.6rem)/1.3 var(--font-head);letter-spacing:-.01em}
 .hero .cta{
   display:inline-block;
-  margin-top:2rem;
-  padding:.8rem 1.5rem;
-  border:1px solid var(--line);
-  border-radius:999px;
-  background:var(--surface);
-  backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px);
+  margin-top:1.75rem;
+  padding:.7rem 1.5rem;
+  background:var(--terracotta);
+  color:var(--paper);
+  border:var(--stroke) solid var(--ink);
+  border-radius:var(--r3);
+  box-shadow:4px 4px 0 var(--ink);
   text-decoration:none;
-  font:inherit;
-  font-weight:500;
-  color:inherit;
-  cursor:pointer;
-  transition:background .2s, color .2s, border-color .2s;
+  font-weight:600;
+  transition:transform .15s, box-shadow .15s;
 }
-.hero .cta:hover{background:var(--accent);color:#06222b;border-color:var(--accent)}
+.hero .cta:hover{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
 
 /* =========================================================
-   LAYOUT UTAMA — kiri: menu, kanan: isi
-   Teknik: radio button + label + :checked (tanpa JavaScript)
+   2. TENGAH — menu kiri 20% | isi kanan 80%
+   Teknik: radio + label + :checked (tanpa JavaScript)
    ========================================================= */
 .app{
   position:relative;
   display:grid;
-  grid-template-columns:minmax(180px,1fr) 4fr;   /* menu 20% : isi 80% */
-  gap:clamp(1.25rem,3vw,2.5rem);
-  padding:clamp(1.5rem,4vw,2.5rem) 0;
+  /* 20% : 80% dari lebar kerangka, dikurangi setengah jarak */
+  grid-template-columns:minmax(185px,1fr) minmax(0,4fr);
+  gap:var(--gap);
   scroll-margin-top:0;
 }
-.app > input{position:fixed;opacity:0;pointer-events:none}
+.app > input{position:absolute;opacity:0;pointer-events:none}
 
-/* ---- Menu kiri ---- */
+/* ---- MENU (kolom kuning) ---- */
 .menu{
-  position:sticky;
-  top:2rem;
-  align-self:start;
-  display:flex;
-  flex-direction:column;
-  gap:.25rem;
+  background:var(--mustard);
+  border-radius:var(--r2);
+  padding:clamp(1rem,2vw,1.75rem) clamp(.75rem,1.4vw,1.25rem);
 }
-.menu .who{
-  font:700 1.25rem/1.2 var(--font-head);
-  margin-bottom:.15rem;
-}
-.menu .sub{color:var(--muted);font-size:.9rem;margin-bottom:1.75rem}
+.menu::after{border-radius:var(--r3);transform:rotate(.3deg)}
+.menu ul{list-style:none;display:flex;flex-direction:column;gap:.35rem}
 .menu label{
-  position:relative;
+  display:block;
   cursor:pointer;
-  padding:.6rem 0 .6rem 1.1rem;
-  color:var(--muted);
-  font:500 1.05rem/1.3 var(--font-head);
-  border-left:2px solid var(--line);
-  transition:color .2s, border-color .2s, padding .2s;
+  padding:.3rem .6rem .3rem 1.1rem;
+  position:relative;
+  font:600 1.02rem/1.35 var(--font-head);
+  border-radius:var(--r3);
+  transition:background .2s;
 }
-.menu label:hover{color:var(--text)}
-
-/* menu aktif */
-#t-profil:checked    ~ .menu label[for="t-profil"],
-#t-edu:checked       ~ .menu label[for="t-edu"],
-#t-org:checked       ~ .menu label[for="t-org"],
-#t-kerja:checked     ~ .menu label[for="t-kerja"],
-#t-produk:checked    ~ .menu label[for="t-produk"]{
-  color:var(--text);
-  border-left-color:var(--accent);
-  padding-left:1.5rem;
+.menu label::before{               /* titik daftar, seperti di gambar */
+  content:"•";
+  position:absolute;
+  left:.35rem;
 }
-/* fokus keyboard pada radio -> tampil di label */
-#t-profil:focus-visible    ~ .menu label[for="t-profil"],
-#t-edu:focus-visible       ~ .menu label[for="t-edu"],
-#t-org:focus-visible       ~ .menu label[for="t-org"],
-#t-kerja:focus-visible     ~ .menu label[for="t-kerja"],
-#t-produk:focus-visible    ~ .menu label[for="t-produk"]{outline:2px solid var(--accent);outline-offset:2px}
+.menu label:hover{background:rgba(44,30,21,.1)}
 
-/* ---- Panel kanan ---- */
+/* menu aktif = disorot kuas terracotta */
+#t-profil:checked   ~ .menu label[for="t-profil"],
+#t-edu:checked      ~ .menu label[for="t-edu"],
+#t-org:checked      ~ .menu label[for="t-org"],
+#t-kerja:checked    ~ .menu label[for="t-kerja"],
+#t-produk:checked   ~ .menu label[for="t-produk"]{
+  background:var(--terracotta);
+  color:var(--paper);
+}
+#t-profil:focus-visible   ~ .menu label[for="t-profil"],
+#t-edu:focus-visible      ~ .menu label[for="t-edu"],
+#t-org:focus-visible      ~ .menu label[for="t-org"],
+#t-kerja:focus-visible    ~ .menu label[for="t-kerja"],
+#t-produk:focus-visible   ~ .menu label[for="t-produk"]{
+  outline:3px dashed var(--ink);outline-offset:2px;
+}
+
+/* ---- ISI (kolom kanan) ---- */
 .stage{
-  display:grid;
-  grid-template-columns:minmax(0,1fr);
   min-width:0;
-  min-height:28rem;
-  padding:clamp(1.5rem,4vw,3rem);
-  border:1px solid var(--line);
-  border-radius:28px;
-  background:
-    radial-gradient(60% 50% at 100% 0%, rgba(90,209,240,.12), transparent 70%),
-    var(--surface);
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
+  min-height:32rem;
+  padding:clamp(1.5rem,3.5vw,3rem);
+  border-radius:var(--r1);
+  background:var(--paper);
 }
-.panel{grid-area:1/1/2/2;min-width:0;visibility:hidden}
+/* hiasan ilustratif: matahari & daun (murni CSS) */
+.deco{position:absolute;pointer-events:none}
+.deco.sun{
+  top:16px;right:16px;width:84px;height:84px;
+  border-radius:50%;
+  background:var(--mustard);
+  border:var(--stroke) solid var(--ink);
+  box-shadow:inset 0 0 0 9px var(--paper), inset 0 0 0 12px var(--ink);
+}
+.deco.leaf{
+  right:clamp(1rem,3vw,2.5rem);bottom:16px;width:64px;height:100px;
+  background:var(--olive);
+  border:var(--stroke) solid var(--ink);
+  border-radius:0 100% 0 100%;
+  transform:rotate(18deg);
+}
+.deco.leaf::after{
+  content:"";position:absolute;left:46%;top:8%;bottom:8%;
+  border-left:2px solid var(--ink);transform:rotate(-30deg);
+}
+
+.panel{
+  position:absolute;
+  inset:clamp(1.5rem,3.5vw,3rem);
+  z-index:1;
+  visibility:hidden;
+  opacity:0;
+  transform:translateY(8px);
+  pointer-events:none;
+}
 @keyframes swap{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-#t-profil:checked   ~ .stage .p-profil,
-#t-edu:checked      ~ .stage .p-edu,
-#t-org:checked      ~ .stage .p-org,
-#t-kerja:checked    ~ .stage .p-kerja,
-#t-produk:checked   ~ .stage .p-produk{
+#t-profil:checked ~ .stage .p-profil,
+#t-edu:checked    ~ .stage .p-edu,
+#t-org:checked    ~ .stage .p-org,
+#t-kerja:checked  ~ .stage .p-kerja,
+#t-produk:checked ~ .stage .p-produk{
+  position:relative;
+  inset:auto;
   visibility:visible;
+  opacity:1;
+  transform:none;
+  pointer-events:auto;
   animation:swap .35s ease both;
 }
 
 .panel h2{
-  font:700 clamp(1.8rem,4vw,2.8rem)/1.05 var(--font-head);
-  letter-spacing:-.025em;
+  font:800 clamp(1.8rem,3.6vw,2.7rem)/1.05 var(--font-head);
+  letter-spacing:-.02em;
   margin-bottom:1.5rem;
+  padding-right:6rem;
+  text-decoration:underline wavy var(--terracotta) 3px;
+  text-underline-offset:9px;
+  text-decoration-skip-ink:none;
 }
-.panel p{max-width:62ch;color:#cfd5e2}
+.panel p{max-width:64ch}
 .panel p + p{margin-top:1rem}
-
-/* daftar entri (pendidikan, organisasi, pekerjaan) */
-.entry{
-  padding:1.25rem 0;
-  border-top:1px solid var(--line);
+.sub-h{
+  font:600 1.35rem/1.3 var(--font-head);
+  font-style:italic;
+  color:var(--terracotta);
+  margin:2rem 0 .75rem;
 }
-.entry:last-child{border-bottom:1px solid var(--line)}
-.entry h3{font:500 1.2rem/1.3 var(--font-head)}
-.entry .when{color:var(--accent);font-size:.9rem;margin:.15rem 0 .5rem}
+
+.entry{padding:1.1rem 0;border-top:2px dashed rgba(44,30,21,.4)}
+.entry:last-child{border-bottom:2px dashed rgba(44,30,21,.4)}
+.entry h3{font:600 1.2rem/1.3 var(--font-head)}
+.entry .when{
+  display:inline-block;
+  margin:.4rem 0 .5rem;
+  padding:.05rem .75rem;
+  background:var(--sage);
+  border:2px solid var(--ink);
+  border-radius:var(--r3);
+  font-size:.85rem;font-weight:600;
+}
 .entry p{font-size:.97rem}
 
 /* =========================================================
-   PRODUK — kartu 1:1, bergulir ke samping, loop
+   KARYA — kartu 1:1, geser ke samping, loop
    ========================================================= */
 .carousel{
-  margin-top:.5rem;
+  margin:0 -.5rem;
+  padding:.5rem;
   overflow:hidden;
-  /* pudarkan tepi kiri & kanan */
-  -webkit-mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent);
-          mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent);
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent);
+          mask-image:linear-gradient(to right,transparent,#000 5%,#000 95%,transparent);
 }
 .track{
   display:flex;
@@ -239,110 +286,84 @@ a{color:inherit}
   width:max-content;
   animation:loop var(--loop-time) linear infinite;
 }
-@media (hover:hover) and (pointer:fine){
-  .carousel:hover .track,
-  .carousel:has(.card:focus-visible) .track{animation-play-state:paused}
-}
-
-/* geser tepat setengah lebar (set kartu ke-1) -> mulus tanpa putus */
-@keyframes loop{
-  to{transform:translateX(calc(-50% - var(--card-gap) / 2))}
-}
+.carousel:hover .track,
+.carousel:focus-within .track{animation-play-state:paused}
+@keyframes loop{ to{transform:translateX(calc(-50% - var(--card-gap) / 2))} }
 
 .card{
   position:relative;
   flex:0 0 var(--card-size);
   width:var(--card-size);
-  aspect-ratio:1 / 1;           /* rasio 1:1 */
+  aspect-ratio:1 / 1;                /* rasio 1:1 */
   overflow:hidden;
-  border-radius:20px;
-  border:1px solid var(--line);
-  background:#1a2030;
   display:block;
   text-decoration:none;
+  background:var(--sage);
+  border:var(--stroke) solid var(--ink);
+  border-radius:var(--r3);
+  box-shadow:4px 4px 0 var(--ink);
+  transition:transform .2s;
 }
-.card img{
-  width:100%;height:100%;
-  object-fit:cover;
-  display:block;
-  transition:transform .5s ease;
-}
-.card:hover img{transform:scale(1.06)}
+.card:nth-child(even){border-radius:var(--r2)}
+.card:hover{transform:rotate(-1.2deg) translateY(-3px)}
+.card img{width:100%;height:100%;object-fit:cover;display:block}
 .card .cap{
   position:absolute;left:0;right:0;bottom:0;
-  padding:2.5rem 1rem .9rem;
-  background:linear-gradient(to top,rgba(8,10,16,.88),transparent);
-  font:500 1rem/1.25 var(--font-head);
+  padding:.5rem .9rem .6rem;
+  background:var(--paper);
+  border-top:var(--stroke) solid var(--ink);
+  font:600 1rem/1.2 var(--font-head);
 }
 .card .cap small{
   display:block;
-  margin-top:.15rem;
-  font:400 .8rem/1.3 var(--font-body);
-  color:var(--accent);
+  font:600 1.05rem/1.1 var(--font-hand);
+  color:var(--terracotta);
 }
-.hint{margin-top:1.25rem;color:var(--muted);font-size:.88rem}
+.hint{margin-top:1rem;font:600 1.2rem/1.2 var(--font-hand);color:var(--olive)}
+
+/* =========================================================
+   3. FOOTER — motto hidup
+   ========================================================= */
+.footer{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:96px;
+  padding:1.25rem 1.5rem;
+  background:var(--olive);
+  color:var(--paper);
+  border-radius:var(--r3);
+  text-align:center;
+}
+.footer::after{border-radius:var(--r1);transform:rotate(.25deg)}
+.footer p{
+  font:600 clamp(1.15rem,2.4vw,1.7rem)/1.3 var(--font-head);
+  font-style:italic;
+}
 
 /* =========================================================
    RESPONSIF
    ========================================================= */
-@media (max-width:1024px){
-  .hero-video{object-position:13% center}
-}
-
 @media (max-width:820px){
   .page{width:92%}
   .app{grid-template-columns:1fr}
-  .menu{
-    position:static;
-    flex-direction:row;
-    flex-wrap:wrap;
-    gap:.5rem;
+  .hero{background-position:center,calc(0% - 90px) center,center}
+  .menu ul{flex-direction:row;flex-wrap:wrap;gap:.5rem}
+  .menu label{padding:.3rem .8rem;border:2px solid var(--ink)}
+  .menu label::before{display:none}
+  .stage{min-height:0}
+  .deco.leaf{display:none}
+  .deco.sun{width:60px;height:60px;top:12px;right:12px}
+  .panel h2{
+    padding-right:4.5rem;
+    line-height:1.2;
+    text-underline-offset:5px;
+    text-decoration-thickness:2px;
   }
-  .menu .who,.menu .sub{flex:0 0 100%}
-  .menu .sub{margin-bottom:.75rem}
-  .menu label{
-    padding:.5rem 1rem;
-    border:1px solid var(--line);
-    border-radius:999px;
-    font-size:.95rem;
-  }
-  #t-profil:checked    ~ .menu label[for="t-profil"],
-  #t-edu:checked       ~ .menu label[for="t-edu"],
-  #t-org:checked       ~ .menu label[for="t-org"],
-  #t-kerja:checked     ~ .menu label[for="t-kerja"],
-  #t-produk:checked    ~ .menu label[for="t-produk"]{
-    padding:.5rem 1rem;
-    background:var(--accent);
-    color:#06222b;
-    border-color:var(--accent);
-  }
-  .stage{
-    display:block;
-    min-height:0;
-    padding:clamp(1.1rem,5vw,1.5rem);
-    overflow-anchor:none;
-  }
-  .panel{display:none;grid-area:auto;visibility:visible;animation:none}
-  #t-profil:checked   ~ .stage .p-profil,
-  #t-edu:checked      ~ .stage .p-edu,
-  #t-org:checked      ~ .stage .p-org,
-  #t-kerja:checked    ~ .stage .p-kerja,
-  #t-produk:checked   ~ .stage .p-produk{display:block}
-  .carousel{
-    overflow:hidden;
-    overflow-y:hidden;
-    -webkit-mask-image:none;
-            mask-image:none;
-  }
-  .track{width:max-content;animation:loop var(--loop-time) linear infinite}
-  .track .dup{display:block}
-  :root{--card-size:clamp(170px,62vw,200px)}
+  :root{--card-size:190px}
 }
-
-/* hormati pengguna yang mematikan animasi */
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  .hero-video{display:none}
   .panel{animation:none}
   .track{animation:none}
   .carousel{overflow-x:auto;-webkit-mask-image:none;mask-image:none}
@@ -352,47 +373,43 @@ a{color:inherit}
 </head>
 
 <body>
+<div class="page">
 
-<!-- BANNER (hero): layar penuh -->
+<!-- ===================== 1. BANNER ===================== -->
 <header class="hero">
-  <video class="hero-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
-    <source src="hero_section.webm" type="video/webm">
-  </video>
   <div class="hero-inner">
-    <h1>M Haikal<br>As Sayuti</h1>
+    <h1>M. Haikal<br>As Sayuti</h1>
     <p class="role">UI/UX &amp; Product Designer</p>
     <p class="quote">Simplicity is the ultimate sophistication</p>
     <a class="cta" href="#portofolio">Lihat portofolio</a>
   </div>
 </header>
 
-<div class="page">
-
-<!-- ===================== ISI ===================== -->
+<!-- ===================== 2. MENU + ISI ===================== -->
 <main class="app" id="portofolio">
 
-  <!-- radio: satu per menu. "checked" = menu yang terbuka pertama kali -->
   <input type="radio" name="tab" id="t-profil" checked>
   <input type="radio" name="tab" id="t-edu">
   <input type="radio" name="tab" id="t-org">
   <input type="radio" name="tab" id="t-kerja">
   <input type="radio" name="tab" id="t-produk">
 
-  <!-- ---------- KIRI: menu ---------- -->
+  <!-- KIRI (20%) -->
   <nav class="menu" aria-label="Bagian portofolio">
-    <p class="who">k4ll</p>
-    <p class="sub">Pilih bagian untuk membaca isinya.</p>
-    <label for="t-profil">Profil</label>
-    <label for="t-edu">Riwayat Pendidikan</label>
-    <label for="t-org">Riwayat Organisasi</label>
-    <label for="t-kerja">Riwayat Pekerjaan</label>
-    <label for="t-produk">Karya/Produk</label>
+    <ul>
+      <li><label for="t-profil">Profil</label></li>
+      <li><label for="t-edu">Riwayat Pendidikan</label></li>
+      <li><label for="t-org">Riwayat Organisasi</label></li>
+      <li><label for="t-kerja">Riwayat Pekerjaan</label></li>
+      <li><label for="t-produk">Karya Tulis/Produk</label></li>
+    </ul>
   </nav>
 
-  <!-- ---------- KANAN: isi ---------- -->
+  <!-- KANAN (80%) -->
   <div class="stage">
+    <span class="deco sun"></span>
+    <span class="deco leaf"></span>
 
-    <!-- PROFIL -->
     <section class="panel p-profil">
       <h2>Profil</h2>
       <p>Saya adalah seorang UI/UX &amp; Product Designer yang berfokus pada penciptaan antarmuka digital yang intuitif, fungsional, dan estetis. Berangkat dari filosofi desain bahwa kesederhanaan adalah bentuk kecanggihan tertinggi, saya mendalami perancangan produk yang berpusat pada pengguna.</p>
@@ -402,7 +419,6 @@ a{color:inherit}
       <p>Visi jangka panjang saya adalah mengarahkan keahlian desain dan teknologi yang saya miliki untuk merancang sistem, produk digital, atau aplikasi (sebagai bagian dari tesis/proyek akhir) yang tidak hanya memecahkan masalah kompleks, namun juga memiliki nilai guna yang praktis dan nyata bagi masyarakat luas.</p>
     </section>
 
-    <!-- PENDIDIKAN -->
     <section class="panel p-edu">
       <h2>Riwayat Pendidikan</h2>
       <div class="entry">
@@ -417,7 +433,6 @@ a{color:inherit}
       </div>
     </section>
 
-    <!-- ORGANISASI -->
     <section class="panel p-org">
       <h2>Riwayat Organisasi</h2>
       <div class="entry">
@@ -431,7 +446,6 @@ a{color:inherit}
       </div>
     </section>
 
-    <!-- PEKERJAAN -->
     <section class="panel p-kerja">
       <h2>Riwayat Pekerjaan</h2>
       <p>Sebagai desainer independen (freelance &amp; proyek), saya mengelola berbagai siklus proyek dari konseptualisasi hingga hasil akhir.</p>
@@ -445,24 +459,18 @@ a{color:inherit}
       </div>
     </section>
 
-    <!-- PRODUK -->
     <section class="panel p-produk">
-      <h2>Karya/Produk</h2>
+      <h2>Karya Tulis/Produk</h2>
 
       <!--
         ==========================================================
         CARA MENGUBAH KARTU
-        ----------------------------------------------------------
-        Satu kartu = satu baris <a class="card"> ... </a>
-          • href="..."     → link website (tujuan saat kartu diklik)
-          • <img src="..."> → foto kartu (taruh file di folder images/)
-          • <span class="cap"> → judul, <small> → keterangan kecil
-        Kartu tanpa link (mis. merchandise): hapus href & target,
-        atau ganti href menjadi gambar besar, mis. href="images/tshirt.jpg"
-
-        PENTING: loop butuh dua set yang SAMA PERSIS.
-        Edit set 1, lalu salin hasilnya ke set 2 (class="dup").
-        Menambah kartu? Tambahkan di KEDUA set.
+        Satu kartu = satu blok <a class="card"> ... </a>
+          • href="..."          → link website (atau gambar besar)
+          • <img src="...">     → foto kartu
+          • <span class="cap">  → judul, <small> → keterangan
+        Loop butuh DUA SET YANG SAMA PERSIS.
+        Ubah di Set 1, lalu salin ke Set 2 (class="dup").
         ==========================================================
       -->
       <div class="carousel">
@@ -470,80 +478,77 @@ a{color:inherit}
 
           <!-- ===== SET 1 ===== -->
           <a class="card" href="https://temukmuin.vercel.app/" target="_blank" rel="noopener">
-            <img src="/foto product/temUKM.webp" alt="Desain antarmuka temUKM" loading="lazy" decoding="async">
+            <img src="foto%20product/temUKM.webp" alt="Desain antarmuka temUKM">
             <span class="cap">temUKM<small>UI/UX · platform web</small></span>
           </a>
           <a class="card" href="https://tumpukanmaterii.netlify.app/" target="_blank" rel="noopener">
-            <img src="foto product/tumpukan.webp" alt="Desain antarmuka Tumpukan" loading="lazy" decoding="async">
+            <img src="foto%20product/tumpukan.webp" alt="Desain antarmuka Tumpukan">
             <span class="cap">Tumpukan<small>UI/UX · proyek web</small></span>
           </a>
-          <a class="card" href="foto product/design_shirt.webp" target="_blank">
-            <img src="/foto product/design_shirt.webp" alt="Desain kaos volunteer" loading="lazy" decoding="async">
+          <a class="card" href="foto%20product/design_shirt.webp" target="_blank" rel="noopener">
+            <img src="foto%20product/design_shirt.webp" alt="Desain kaos volunteer">
             <span class="cap">Desain T-Shirt<small>Merchandise volunteer</small></span>
           </a>
-          <a class="card" href="foto product/design_kipas.webp" target="_blank">
-            <img src="/foto product/design_kipas.webp" alt="Desain kipas promosi" loading="lazy" decoding="async">
+          <a class="card" href="foto%20product/design_kipas.webp" target="_blank" rel="noopener">
+            <img src="foto%20product/design_kipas.webp" alt="Desain kipas promosi">
             <span class="cap">Desain Kipas<small>Cetak promosi</small></span>
           </a>
-          <a class="card" href="foto product/typograph.webp" target="_blank">
-            <img src="/foto product/typograph.webp" alt="Desain tipografi" loading="lazy" decoding="async">
+          <a class="card" href="foto%20product/typograph.webp" target="_blank" rel="noopener">
+            <img src="foto%20product/typograph.webp" alt="Desain tipografi">
             <span class="cap">Desain Tipografi<small>Desain grafis</small></span>
           </a>
-          <a class="card" href="foto product/logo.webp" target="_blank">
-            <img src="/foto product/logo.webp" alt="Desain logo" loading="lazy" decoding="async">
+          <a class="card" href="foto%20product/logo.webp" target="_blank" rel="noopener">
+            <img src="foto%20product/logo.webp" alt="Desain logo">
             <span class="cap">Desain Logo<small>Desain grafis</small></span>
           </a>
-          <a class="card" href="foto product/logo_2.webp" target="_blank">
-            <img src="/foto product/logo_2.webp" alt="Desain logo" loading="lazy" decoding="async">
+          <a class="card" href="foto%20product/logo_2.webp" target="_blank" rel="noopener">
+            <img src="foto%20product/logo_2.webp" alt="Desain logo">
             <span class="cap">Desain Logo<small>Desain grafis</small></span>
           </a>
 
           <!-- ===== SET 2 (salinan set 1, jangan dihapus) ===== -->
-          <a class="card dup" href="https://temukmuin.vercel.app/" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
-            <img src="/foto product/temUKM.webp" alt="" loading="lazy" decoding="async">
+          <a class="card dup" aria-hidden="true" tabindex="-1" href="https://temukmuin.vercel.app/" target="_blank" rel="noopener">
+            <img src="foto%20product/temUKM.webp" alt="">
             <span class="cap">temUKM<small>UI/UX · platform web</small></span>
           </a>
-          <a class="card dup" href="https://tumpukanmaterii.netlify.app/" target="_blank" rel="noopener" aria-hidden="true" tabindex="-1">
-            <img src="/foto product/tumpukan.webp" alt="" loading="lazy" decoding="async">
+          <a class="card dup" aria-hidden="true" tabindex="-1" href="https://tumpukanmaterii.netlify.app/" target="_blank" rel="noopener">
+            <img src="foto%20product/tumpukan.webp" alt="">
             <span class="cap">Tumpukan<small>UI/UX · proyek web</small></span>
           </a>
-          <a class="card dup" href="/foto product/design_shirt.webp" target="_blank" aria-hidden="true" tabindex="-1">
-            <img src="/foto product/design_shirt.webp" alt="" loading="lazy" decoding="async">
+          <a class="card dup" aria-hidden="true" tabindex="-1" href="foto%20product/design_shirt.webp" target="_blank" rel="noopener">
+            <img src="foto%20product/design_shirt.webp" alt="">
             <span class="cap">Desain T-Shirt<small>Merchandise volunteer</small></span>
           </a>
-          <a class="card dup" href="/foto product/design_kipas.webp" target="_blank" aria-hidden="true" tabindex="-1">
-            <img src="/foto product/design_kipas.webp" alt="" loading="lazy" decoding="async">
+          <a class="card dup" aria-hidden="true" tabindex="-1" href="foto%20product/design_kipas.webp" target="_blank" rel="noopener">
+            <img src="foto%20product/design_kipas.webp" alt="">
             <span class="cap">Desain Kipas<small>Cetak promosi</small></span>
           </a>
-          <a class="card dup" href="/foto product/typograph.webp" target="_blank" aria-hidden="true" tabindex="-1">
-            <img src="/foto product/typograph.webp" alt="" loading="lazy" decoding="async">
+          <a class="card dup" aria-hidden="true" tabindex="-1" href="foto%20product/typograph.webp" target="_blank" rel="noopener">
+            <img src="foto%20product/typograph.webp" alt="">
             <span class="cap">Desain Tipografi<small>Desain grafis</small></span>
           </a>
-          <a class="card dup" href="/foto product/logo.webp" target="_blank" aria-hidden="true" tabindex="-1">
-            <img src="/foto product/logo.webp" alt="" loading="lazy" decoding="async">
+          <a class="card dup" aria-hidden="true" tabindex="-1" href="foto%20product/logo.webp" target="_blank" rel="noopener">
+            <img src="foto%20product/logo.webp" alt="">
             <span class="cap">Desain Logo<small>Desain grafis</small></span>
           </a>
-          <a class="card dup" href="/foto product/logo_2.webp" target="_blank" aria-hidden="true" tabindex="-1">
-            <img src="/foto product/logo_2.webp" alt="" loading="lazy" decoding="async">
+          <a class="card dup" aria-hidden="true" tabindex="-1" href="foto%20product/logo_2.webp" target="_blank" rel="noopener">
+            <img src="foto%20product/logo_2.webp" alt="">
             <span class="cap">Desain Logo<small>Desain grafis</small></span>
-          </a>  
-
+          </a>
 
         </div>
       </div>
-
-      <p class="hint">Arahkan kursor ke kartu untuk menjeda. Klik untuk membuka.</p>
+      <p class="hint">arahkan kursor untuk menjeda · klik untuk membuka</p>
     </section>
-
   </div>
 </main>
 
-<!-- ===================== FOOTER: MOTTO ===================== -->
+<!-- ===================== 3. FOOTER ===================== -->
 <footer class="footer">
   <!-- Ganti dengan motto hidupmu -->
   <p>Simplicity is the ultimate sophistication</p>
 </footer>
-</div>
 
+</div>
 </body>
 </html>
